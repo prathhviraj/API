@@ -10,44 +10,69 @@
     <link href="https://fonts.googleapis.com/css2?family=Libertinus+Mono&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
     
     <div class="container">
         <div class="card">
-            <h2><i class="fa-solid fa-location-dot"></i><span id="location"></span></h2>
+            <!-- City Input -->
+            <input 
+                type="text" 
+                id="cityInput" 
+                placeholder="Enter city name" 
+                style="padding: 10px; width: 80%; border-radius: 12px; border: none; font-size: 1rem; margin-bottom: 15px; text-align: center;"
+            >
+
+            <!-- Search Button -->
+            <button onclick="getWeather()" class="refresh">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+
+            <!-- Weather Info -->
+            <h2><i class="fa-solid fa-location-dot"></i> <span id="location"></span></h2>
             <h6 id="weather"></h6>
             <h4><span id="temp"></span><sup>o</sup>C</h4>
             <img src="" id="icon">
-            <button onclick="window.location.replace()" class="refresh"><i class="fa-solid fa-rotate"></i></button>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-
     <script>
-        link = "https://api.openweathermap.org/data/2.5/weather?q=ahmedabad&appid=030fea393193ae549cc23cab50989dd6"
-        var request = new XMLHttpRequest();
-        request.open('GET',link,true);
-        request.onload = function(){
-            var obj = JSON.parse(this.response);
-            console.log(obj);
-            document.getElementById('weather').innerHTML = obj.weather[0].description;
-            document.getElementById('location').innerHTML = obj.name;
-            document.getElementById('temp').innerHTML = Math.round(obj.main.temp - 273.15);
-            document.getElementById('icon').src = "https://openweathermap.org/img/w/" + obj.weather[0].icon + ".png"
-        }
-        
-        if(request.status >= 200 && request.status  < 400){
-            var temp = obj.main.temp;
-        }
-        else{
-            console.log("The city data is not available")
+        function getWeather() {
+            const city = document.getElementById("cityInput").value || "ahmedabad";
+            const apiKey = "030fea393193ae549cc23cab50989dd6";
+            const link = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+
+            const request = new XMLHttpRequest();
+            request.open('GET', link, true);
+
+            request.onload = function () {
+                if (request.status >= 200 && request.status < 400) {
+                    const obj = JSON.parse(this.response);
+                    document.getElementById('weather').innerHTML = obj.weather[0].description;
+                    document.getElementById('location').innerHTML = obj.name;
+                    document.getElementById('temp').innerHTML = Math.round(obj.main.temp - 273.15);
+                    document.getElementById('icon').src = "https://openweathermap.org/img/w/" + obj.weather[0].icon + ".png";
+                } else {
+                    alert("City not found. Please try another.");
+                }
+            };
+
+            request.onerror = function () {
+                alert("Network error. Please check your connection.");
+            };
+
+            request.send();
         }
 
-        request.send();
+        // Load default city (Ahmedabad) on startup
+        window.onload = getWeather;
 
+        // Optional: Support Enter key to trigger search
+        document.getElementById("cityInput").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                getWeather();
+            }
+        });
     </script>
 </body>
 </html>
